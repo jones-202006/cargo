@@ -1,0 +1,124 @@
+/* ── LOGIN PAGE STYLES ── */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0f1117;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  background: #1e2333;
+  border: 1px solid #2a3050;
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.login-card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #3b82f6;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.login-card > p {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0 0 32px 0;
+}
+
+form {
+  text-align: left;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #181c27;
+  border: 1px solid #2a3050;
+  border-radius: 10px;
+  color: #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+  border-color: #3b82f6;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 13px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 8px;
+}
+
+button[type="submit"]:hover {
+  opacity: 0.9;
+}
+
+button[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+#message {
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: none;
+}
+
+#message.error {
+  display: block;
+  background: #450a0a;
+  border: 1px solid #ef444455;
+  color: #fca5a5;
+}
+
+#message.success {
+  display: block;
+  background: #14532d;
+  border: 1px solid #22c55e55;
+  color: #86efac;
+}
+

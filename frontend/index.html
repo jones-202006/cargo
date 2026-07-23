@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cargo Loading — Knapsack Algorithm</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+
+  <div class="logo-icon">
+    <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM4 5h16v2H4V5zM3 17h18v2H3v-2z"/></svg>
+  </div>
+  <div>
+    <h1>CargoIQ — Knapsack Algorithm</h1>
+    <span>Dynamic Programming · Cargo Loading Simulator</span>
+  </div>
+  <div class="header-badge">College Project</div>
+  <div class="header-right">
+    <p id="welcomeUser" style="color:var(--muted);font-size:12px;margin-right:12px"></p>
+    <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
+  <button class="tab-btn" onclick="showTab('items')">Cargo Items</button>
+  <button class="tab-btn" onclick="showTab('visual')">Truck Visualization</button>
+  <button class="tab-btn" onclick="showTab('delivery')">Delivery Status</button>
+  <button class="tab-btn" onclick="showTab('learn')">Learn the Algorithm</button>
+</div>
+
+<div class="main">
+
+  <!-- ══════════════════════════════════════════════ DASHBOARD ══ -->
+  <div id="tab-dashboard" class="tab-content active">
+
+    <div class="grid-4" style="margin-bottom:20px">
+      <div class="stat-card">
+        <div class="stat-value text-green" id="s-loaded">0</div>
+        <div class="stat-label">Items Loaded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value text-amber" id="s-weight">0 kg</div>
+        <div class="stat-label">Total Weight</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="s-value">0</div>
+        <div class="stat-label">Total Value</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value text-red" id="s-rejected">0</div>
+        <div class="stat-label">Rejected Items</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Truck Capacity</div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Weight</span>
+            <span id="wlabel">0 / 500 kg</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="wbar" style="width:0%;background:var(--green)"></div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Volume</span>
+            <span id="vlabel">0 / 15 m³</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="vbar" style="width:0%;background:var(--accent)"></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Capacity Settings</div>
+        <div class="row" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>Max Weight (kg)</label>
+            <input type="number" id="maxWeight" value="500" min="50" max="5000">
+          </div>
+          <div class="form-group">
+            <label>Max Volume (m³)</label>
+            <input type="number" id="maxVolume" value="15" min="1" max="100">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="runKnapsack()">Run Optimization</button>
+        <button class="btn btn-outline" onclick="resetAll()" style="margin-left:8px">Reset</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Efficiency Score</div>
+        <div class="ring-container">
+          <div class="efficiency-ring">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="54" fill="none" stroke="#1e2333" stroke-width="12"/>
+              <circle cx="70" cy="70" r="54" fill="none" stroke="var(--accent2)"
+                stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="339" stroke-dashoffset="339"
+                id="ring-circle" transform="rotate(-90 70 70)"
+                style="transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)"/>
+            </svg>
+            <div class="ring-label">
+              <div class="ring-pct" id="ring-pct">0%</div>
+              <div class="ring-sub">efficiency</div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div id="result-summary" style="font-size:13px; color:var(--muted); text-align:center">
+          Run optimization to see results
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--green)"></span> Loaded Items Summary</div>
+      <div id="loaded-table-wrap">
+        <div class="empty-state"><div class="big">📦</div>No items loaded yet. Add cargo items and run optimization.</div>
+      </div>
+    </div>
+
+<section class="analytics">
+        <div class="chart-card">
+            <canvas id="capacityChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </section>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ ITEMS ══ -->
+  <div id="tab-items" class="tab-content">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Add Cargo Item</div>
+<div class="form-group">
+          <label>Item Name</label>
+          <input type="text" id="itemName" placeholder="e.g. Electronics Crate">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" id="weight" placeholder="120" min="1">
+          </div>
+          <div class="form-group">
+            <label>Value / Priority</label>
+            <input type="number" id="profit" placeholder="95" min="1">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Volume (m³)</label>
+            <input type="number" id="volume" placeholder="2.5" min="0.1" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Destination</label>
+            <select id="destination">
+              <option>Mumbai</option>
+              <option>Delhi</option>
+              <option>Chennai</option>
+              <option>Pune</option>
+              <option>Bangalore</option>
+              <option>Hyderabad</option>
+              <option>Kolkata</option>
+              <option>Ahmedabad</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="category" placeholder="e.g. Electronics" value="General">
+          </div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-primary" onclick="addItem()" id="addBtn">Add Item</button>
+        <button class="btn btn-amber" onclick="cancelEdit()" id="cancelEditBtn" style="display:none;margin-left:8px">Cancel Edit</button>
+        <button class="btn btn-outline" onclick="loadDefaults()" style="margin-left:8px">Load Sample Data</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Quick Stats</div>
+        <div class="grid-2">
+          <div class="stat-card">
+            <div class="stat-value" id="q-total">0</div>
+            <div class="stat-label">Total Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value text-amber" id="q-tw">0 kg</div>
+            <div class="stat-label">Combined Weight</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value text-green" id="q-tv">0</div>
+            <div class="stat-label">Combined Value</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="q-tv2">0 m³</div>
+            <div class="stat-label">Combined Volume</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="alert alert-info">
+          Items with higher <strong>Value / Priority</strong> score are preferred by the algorithm. Think of it as the "importance" of the cargo.
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Summary Cards -->
+    <section class="dashboard">
+
+        <div class="card">
+            <h3>Total Cargo</h3>
+            <h2 id="totalCargo">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Weight</h3>
+            <h2 id="totalWeight">0 Kg</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Profit</h3>
+            <h2 id="totalProfit">₹0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Selected Cargo</h3>
+            <h2 id="selectedCargo">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Rejected Cargo</h3>
+            <h2 id="rejectedCargo">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Efficiency</h3>
+            <h2 id="efficiency">0%</h2>
+        </div>
+
+    </section>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> All Cargo Items</div>
+      <div class="search-container">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search cargo by name...">
+      </div>
+      <div class="tbl-wrap">
+        <table id="cargoTable">
+          <thead>
+            <tr>
+              <th>#</th><th>Item Name</th><th>Weight</th><th>Profit</th>
+              <th>Volume</th><th>Destination</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="items-tbody">
+            <tr><td colspan="8" class="empty-state">No items added yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ VISUAL ══ -->
+  <div id="tab-visual" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Truck Loading Visualization</div>
+      <div class="alert alert-info" style="margin-bottom:16px">
+        The cargo bay fills with color-coded boxes after you run optimization. Green = loaded, gray = rejected.
+      </div>
+      <svg id="truck-canvas" viewBox="0 0 900 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- Truck body -->
+        <rect x="10" y="50" width="620" height="140" rx="6" fill="#1e2333" stroke="#3b82f6" stroke-width="1.5"/>
+        <!-- Cab -->
+        <rect x="630" y="80" width="160" height="110" rx="8" fill="#1a2744" stroke="#3b82f6" stroke-width="1.5"/>
+        <!-- Windshield -->
+        <rect x="650" y="92" width="120" height="60" rx="6" fill="#0f1f3d" stroke="#60a5fa" stroke-width="1"/>
+        <!-- Wheels -->
+        <circle cx="120" cy="196" r="22" fill="#111" stroke="#475569" stroke-width="3"/>
+        <circle cx="120" cy="196" r="10" fill="#1e2333" stroke="#475569" stroke-width="2"/>
+        <circle cx="340" cy="196" r="22" fill="#111" stroke="#475569" stroke-width="3"/>
+        <circle cx="340" cy="196" r="10" fill="#1e2333" stroke="#475569" stroke-width="2"/>
+        <circle cx="660" cy="196" r="22" fill="#111" stroke="#475569" stroke-width="3"/>
+        <circle cx="660" cy="196" r="10" fill="#1e2333" stroke="#475569" stroke-width="2"/>
+        <circle cx="760" cy="196" r="22" fill="#111" stroke="#475569" stroke-width="3"/>
+        <circle cx="760" cy="196" r="10" fill="#1e2333" stroke="#475569" stroke-width="2"/>
+        <!-- Road -->
+        <rect x="0" y="216" width="900" height="4" fill="#2a3050"/>
+        <!-- Door line on cab -->
+        <line x1="710" y1="155" x2="710" y2="188" stroke="#60a5fa" stroke-width="1" stroke-dasharray="4"/>
+        <!-- Exhaust -->
+        <rect x="785" y="55" width="8" height="28" rx="3" fill="#334155" stroke="#475569" stroke-width="1"/>
+        <!-- "CARGO" label -->
+        <text x="310" y="130" text-anchor="middle" fill="#60a5fa44" font-size="28" font-weight="800" font-family="'Segoe UI',sans-serif" letter-spacing="8">CARGO</text>
+        <!-- Cargo boxes group -->
+        <g id="cargo-boxes"></g>
+        <!-- Rejected items on the side -->
+        <g id="rejected-items"></g>
+      </svg>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--green)"></span> Loaded Cargo</div>
+        <div id="viz-loaded-list" style="font-size:13px; color:var(--muted)">Run optimization first.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--red)"></span> Rejected Cargo</div>
+        <div id="viz-rejected-list" style="font-size:13px; color:var(--muted)">Run optimization first.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ DELIVERY ══ -->
+  <div id="tab-delivery" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--green)"></span> Delivery Pipeline</div>
+      <div class="alert alert-info">
+        Only <strong>loaded items</strong> appear here. Click "Advance" to move each shipment through the pipeline.
+      </div>
+      <div id="delivery-list">
+        <div class="empty-state"><div class="big">🚚</div>No shipments yet. Run optimization first.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Delivery Summary</div>
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-value text-amber" id="d-queued">0</div>
+          <div class="stat-label">Queued</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:#60a5fa" id="d-dispatched">0</div>
+          <div class="stat-label">Dispatched</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-amber" id="d-transit">0</div>
+          <div class="stat-label">In Transit</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-green" id="d-delivered">0</div>
+          <div class="stat-label">Delivered</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ LEARN ══ -->
+  <div id="tab-learn" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> What is the Knapsack Problem?</div>
+      <div class="step-explain">
+        Imagine you are loading a <strong>truck</strong> with cargo items. Each item has a <strong>weight</strong> and a <strong>value</strong>.
+        The truck can only carry up to a maximum weight. Your goal is to choose which items to load
+        so that the <strong>total value is maximized</strong> without exceeding the weight limit.
+        This is called the <strong>0/1 Knapsack Problem</strong> — each item is either fully loaded (1) or not loaded (0).
+      </div>
+      <div class="step-explain">
+        <strong>Why Dynamic Programming?</strong><br>
+        A brute-force approach would try all 2ⁿ combinations (for n items) — that's exponential!
+        DP breaks the problem into smaller sub-problems and stores their results to avoid recomputation,
+        making it run in <code>O(n × W)</code> time, where W is the weight capacity.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Step-by-Step: How It Works</div>
+
+      <div class="step-explain">
+        <strong>Step 1 — Create the DP table</strong><br>
+        Build a 2D table <code>dp[i][w]</code> where <code>i</code> = item index and <code>w</code> = weight capacity.
+        <code>dp[i][w]</code> stores the maximum value achievable using the first <code>i</code> items with capacity <code>w</code>.
+      </div>
+      <div class="step-explain">
+        <strong>Step 2 — Fill the table</strong><br>
+        For each item <code>i</code> and capacity <code>w</code>:<br>
+        If item weight > <code>w</code>: <code>dp[i][w] = dp[i-1][w]</code> (skip the item)<br>
+        Otherwise: <code>dp[i][w] = max(dp[i-1][w], value[i] + dp[i-1][w - weight[i]])</code>
+      </div>
+      <div class="step-explain">
+        <strong>Step 3 — Traceback selected items</strong><br>
+        Start from <code>dp[n][W]</code> and trace back. If <code>dp[i][w] ≠ dp[i-1][w]</code>, item <code>i</code> was selected.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--green)"></span> The JavaScript Code</div>
+<pre><span class="kw">function</span> <span class="fn">knapsack</span>(items, maxWeight) {
+  <span class="kw">const</span> n = items.length;
+
+  <span class="cm">// Create DP table filled with 0s</span>
+  <span class="kw">const</span> dp = [];
+  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i <= n; i++) {
+    dp[i] = <span class="kw">new</span> Array(maxWeight + 1).fill(0);
+  }
+
+  <span class="cm">// Fill the table</span>
+  <span class="kw">for</span> (<span class="kw">let</span> i = 1; i <= n; i++) {
+    <span class="kw">for</span> (<span class="kw">let</span> w = 0; w <= maxWeight; w++) {
+      <span class="kw">if</span> (items[i-1].weight > w) {
+        dp[i][w] = dp[i-1][w]; <span class="cm">// Can't include this item</span>
+      } <span class="kw">else</span> {
+        dp[i][w] = Math.max(
+          dp[i-1][w],                              <span class="cm">// Exclude item</span>
+          items[i-1].value + dp[i-1][w - items[i-1].weight] <span class="cm">// Include item</span>
+        );
+      }
+    }
+  }
+
+  <span class="cm">// Traceback to find selected items</span>
+  <span class="kw">const</span> selected = [];
+  <span class="kw">let</span> w = maxWeight;
+  <span class="kw">for</span> (<span class="kw">let</span> i = n; i > 0; i--) {
+    <span class="kw">if</span> (dp[i][w] !== dp[i-1][w]) {
+      selected.push(i - 1);   <span class="cm">// Item was included</span>
+      w -= items[i-1].weight;
+    }
+  }
+
+  <span class="kw">return</span> { maxValue: dp[n][maxWeight], selected, dp };
+}
+</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Live DP Table (after optimization)</div>
+      <div id="dp-table-wrap">
+        <div class="empty-state">Run optimization on the Dashboard to see the DP table here.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--red)"></span> Complexity Analysis</div>
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-value" style="font-size:18px; color:var(--accent)">O(n × W)</div>
+          <div class="stat-label">Time Complexity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="font-size:18px; color:var(--accent2)">O(n × W)</div>
+          <div class="stat-label">Space Complexity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="font-size:18px; color:var(--green)" id="dp-ops">—</div>
+          <div class="stat-label">DP Operations Run</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; font-size:13px; color:var(--muted); line-height:1.8">
+        <strong style="color:var(--text)">n</strong> = number of cargo items &nbsp;|&nbsp;
+        <strong style="color:var(--text)">W</strong> = truck weight capacity (kg) &nbsp;|&nbsp;
+        Both values multiply to give the number of sub-problems solved.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+
+<script src="js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
+
