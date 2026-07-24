@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/auth/login";
+const API_URL = "https://cargo-7th2.onrender.com/api/auth/login";
 
 const loginForm = document.getElementById("loginForm");
 const message = document.getElementById("message");

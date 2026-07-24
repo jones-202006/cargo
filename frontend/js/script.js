@@ -2,7 +2,7 @@
 // CargoIQ JavaScript
 // =========================
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://cargo-7th2.onrender.com/api";
 
 // ===== Authentication Check =====
 const token = localStorage.getItem("token");
@@ -18,7 +18,7 @@ var lastResult = null;
 var deliveryStatus = {};
 var STEPS = ['Queued', 'Dispatched', 'In Transit', 'Delivered'];
 var BOX_COLORS = ['#2563eb', '#16a34a', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#15803d', '#c026d3'];
-var API_BASE = 'http://localhost:5000/api/cargo';
+var API_BASE = 'https://cargo-7th2.onrender.com/api/cargo';
 var SSE_ENABLED = false;
 
 // =========================
